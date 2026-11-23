@@ -112,9 +112,9 @@ endif()
 
 add_executable(N-body-bench
     headless/bench_main.cpp
+    src/Kernels/kernels.cpp
     src/ParticleSystem/ParticleSystem.cpp
     src/Particle/Particle.cpp
-    src/ParticleSolver/ParticleSolverCPUSequential/ParticleSolverCPUSequential.cpp
     src/ParticleSystemInitializer/ParticleSystemGalaxyInitializer/ParticleSystemGalaxyInitializer.cpp)
 
 target_compile_definitions(N-body-bench PRIVATE NBODY_HEADLESS)

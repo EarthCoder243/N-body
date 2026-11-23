@@ -119,4 +119,4 @@ add_executable(N-body-bench
 
 target_compile_definitions(N-body-bench PRIVATE NBODY_HEADLESS)
 target_include_directories(N-body-bench PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
-target_link_libraries(N-body-bench PRIVATE glm)
+target_link_libraries(N-body-bench PRIVATE glm OpenMP::OpenMP_CXX)

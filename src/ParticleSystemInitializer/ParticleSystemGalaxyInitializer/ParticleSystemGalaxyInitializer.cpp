@@ -4,7 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 
-ParticleSystemGalaxyInitializer::ParticleSystemGalaxyInitializer(size_t numParticles) :totalParticles(numParticles) {
+// CHANGED: takes the seed and stores it
+ParticleSystemGalaxyInitializer::ParticleSystemGalaxyInitializer(size_t numParticles, unsigned s) :totalParticles(numParticles), seed(s) {
 }
 
 
@@ -14,8 +15,7 @@ std::unique_ptr<ParticleSystem> ParticleSystemGalaxyInitializer::generateParticl
     particles.reserve(this->totalParticles); // Reserve space
 
     // --- Centralized Random Number Generation ---
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 rng(seed); // Use this generator for ALL random numbers below
+    std::mt19937 rng(this->seed); // Use this generator for ALL random numbers below
 
     // --- Random Choice: 50/50 between the two logic styles ---
     std::bernoulli_distribution fiftyFiftyDist(0.5); // 50% probability
@@ -44,7 +44,7 @@ std::unique_ptr<ParticleSystem> ParticleSystemGalaxyInitializer::generateParticl
 
 
     if (executeFirstLogicStyle) {
-        std::mt19937 mt(std::chrono::system_clock::now().time_since_epoch().count());
+        std::mt19937 mt(this->seed);
         std::uniform_real_distribution<float> randRadius(0.f, worldDimensions.x);
         std::uniform_real_distribution<float> randThickness(0.1f, worldDimensions.z / 5.f);
         std::normal_distribution<float> randTheta(0.0f, 3.1415f * 50);

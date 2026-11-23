@@ -6,9 +6,11 @@
 #include <vector>
 #include <ostream>
 #include <Particle.h>
-#include <ComputeShader.h>
 #include <memory>
+#ifndef NBODY_HEADLESS
+#include <ComputeShader.h>
 #include <OpenGLBuffer.h>
+#endif
 
 class ParticleSystem {
 public:
@@ -22,7 +24,9 @@ public:
     void setVelocities(glm::vec4* newVelocities);
     friend std::ostream& operator<<(std::ostream& os, const ParticleSystem& system);
 
-    void gpuSort();
+    #ifndef NBODY_HEADLESS
+        void gpuSort();
+    #endif
 
 
     /**
@@ -85,22 +89,24 @@ protected:
     glm::vec4* masses;
     glm::vec4* forces;
 
-	std::unique_ptr<Shader> mortonShader;
-    std::unique_ptr<Shader> rearrangeParticlesShader; 
-    std::unique_ptr<Shader> bitonicSortShader;
+    #ifndef NBODY_HEADLESS
+        std::unique_ptr<Shader> mortonShader;
+        std::unique_ptr<Shader> rearrangeParticlesShader; 
+        std::unique_ptr<Shader> bitonicSortShader;
 
-    OpenGLBuffer mortonBuffer, positionsCopy, velocitiesCopy;
-    OpenGLBuffer positions_SSBO, velocities_SSBO, accelerations_SSBO, masses_SSBO, forces_SSBO, nodes_SSBO;
+        OpenGLBuffer mortonBuffer, positionsCopy, velocitiesCopy;
+        OpenGLBuffer positions_SSBO, velocities_SSBO, accelerations_SSBO, masses_SSBO, forces_SSBO, nodes_SSBO;
 
-    // Declare ParticleSimulation as a friend class
-    friend class ParticleSimulation;
-    
-    
-    void configureGpuBuffers();
-    void configureCpuBuffers();
-    void createBuffers(bool usesGPU);
-	void compileShaders();
-    unsigned int nextPowerOfTwo(unsigned int n);
+        // Declare ParticleSimulation as a friend class
+        friend class ParticleSimulation;
+        
+        
+        void configureGpuBuffers();
+        void configureCpuBuffers();
+        void createBuffers(bool usesGPU);
+        void compileShaders();
+        unsigned int nextPowerOfTwo(unsigned int n);
+    #endif
 
 };
 

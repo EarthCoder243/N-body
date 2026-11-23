@@ -45,7 +45,13 @@ FetchContent_Declare(
 #
 # fetch dependencies
 #
-FetchContent_MakeAvailable(glfw glad glm)
+option(BENCH_ONLY "Build only the headless benchmark (no GLFW/glad/OpenGL)" OFF)
+
+if(BENCH_ONLY)
+  FetchContent_MakeAvailable(glm)
+else()
+  FetchContent_MakeAvailable(glfw glad glm)
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -O3 -march=native -ffast-math")
 
 
@@ -62,6 +68,7 @@ file(GLOB PROJECT_SOURCES_CPP "src/*.cpp" "src/*/*.cpp" "src/*/*/*.cpp")
   endif()
 
 
+if(NOT BENCH_ONLY)
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP})
 
 # Add specific flags based on Compiler and Build Type
@@ -101,3 +108,15 @@ add_dependencies(${PROJECT_NAME} glfw glad glm)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad glm OpenMP::OpenMP_CXX)
+endif()
+
+add_executable(N-body-bench
+    headless/bench_main.cpp
+    src/ParticleSystem/ParticleSystem.cpp
+    src/Particle/Particle.cpp
+    src/ParticleSolver/ParticleSolverCPUSequential/ParticleSolverCPUSequential.cpp
+    src/ParticleSystemInitializer/ParticleSystemGalaxyInitializer/ParticleSystemGalaxyInitializer.cpp)
+
+target_compile_definitions(N-body-bench PRIVATE NBODY_HEADLESS)
+target_include_directories(N-body-bench PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
+target_link_libraries(N-body-bench PRIVATE glm)

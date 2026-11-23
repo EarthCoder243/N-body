@@ -1,7 +1,9 @@
 #include "ParticleSystem.h"
-#include "Helpers.h"
 #include <algorithm>
+#ifndef NBODY_HEADLESS
+#include "Helpers.h"
 using helpers::log;
+#endif
 ParticleSystem::ParticleSystem(const std::vector<Particle> &particles, const bool usesGPU) {
     this->numParticles = particles.size();
     this->velocities = new glm::vec4[this->numParticles]();
@@ -19,15 +21,19 @@ ParticleSystem::ParticleSystem(const std::vector<Particle> &particles, const boo
         this->forces[i] = glm::vec4(0.f);
     }
 
-    this->createBuffers(usesGPU);
-	this->compileShaders();
+    #ifndef NBODY_HEADLESS
+        this->createBuffers(usesGPU);
+        this->compileShaders();
+    #endif
 }
 
-void ParticleSystem::compileShaders() {
-    mortonShader = std::make_unique<ComputeShader>(std::string("../src/shaders/ComputeShaders/morton.glsl"));
-    rearrangeParticlesShader = std::make_unique<ComputeShader>(std::string("../src/shaders/ComputeShaders/rearrange.glsl"));
-	bitonicSortShader = std::make_unique<ComputeShader>(std::string("../src/shaders/ComputeShaders/bitonicSort.glsl"));
-}
+#ifndef NBODY_HEADLESS
+    void ParticleSystem::compileShaders() {
+        mortonShader = std::make_unique<ComputeShader>(std::string("../src/shaders/ComputeShaders/morton.glsl"));
+        rearrangeParticlesShader = std::make_unique<ComputeShader>(std::string("../src/shaders/ComputeShaders/rearrange.glsl"));
+        bitonicSortShader = std::make_unique<ComputeShader>(std::string("../src/shaders/ComputeShaders/bitonicSort.glsl"));
+    }
+#endif
 
 ParticleSystem::ParticleSystem(ParticleSystem * other) {
     this->numParticles = other->size();
@@ -46,7 +52,7 @@ ParticleSystem::ParticleSystem(ParticleSystem * other) {
     }
 }
 
-
+#ifndef NBODY_HEADLESS
 void ParticleSystem::createBuffers(bool usesGPU) {
     if (usesGPU) {
         this->configureGpuBuffers();
@@ -169,6 +175,7 @@ void ParticleSystem::gpuSort() {
 	readVelocities->bindBufferBase(18); 
             
 }
+#endif
 
 
 

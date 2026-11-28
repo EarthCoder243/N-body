@@ -1,0 +1,55 @@
+#N body cluster on Swarm. Deploy with deploy/up.sh
+version: "3.8"
+
+networks:
+  mpi-net:
+    external: true
+
+secrets:
+  mpi_ssh_key:
+    external: true
+  mpi_ssh_pub:
+    external: true
+
+volumes:
+  ckpt: {}
+
+services:
+  worker-cpu:
+    image: ${IMAGE:-nbody-cpu:latest}
+    environment:
+      ROLE: worker
+      BACKEND: omp
+      THREADS: "${CPU_THREADS:-0}"
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+      TASK_SLOT: "{{.Task.Slot}}"
+      SUPERVISOR_ADDR: supervisor
+    networks: [mpi-net]
+    secrets: [mpi_ssh_key, mpi_ssh_pub]
+    volumes: ["ckpt:/ckpt"]
+    deploy:
+      mode: global
+      endpoint_mode: dnsrr
+      placement:
+        constraints: [node.labels.compute == cpu]
+      restart_policy: {condition: any, delay: 2s}
+      update_config: {parallelism: 1, failure_action: rollback}
+
+  supervisor:
+    image: ${IMAGE:-nbody-cpu:latest}
+    environment:
+      ROLE: supervisor
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+      TASK_SLOT: "{{.Task.Slot}}"
+      MIN_WORKERS: "${MIN_WORKERS:-2}"
+      RANK0_NODE: "${RANK0_NODE:-}"
+      JOB_ARGS: "${JOB_ARGS:--n 50000 --steps 2000 --ckpt-every 50 --rebalance-every 20}"
+    networks: [mpi-net]
+    secrets: [mpi_ssh_key, mpi_ssh_pub]
+    volumes: ["ckpt:/ckpt"]
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+        preferences: [{spread: node.labels.infra}]
+      restart_policy: {condition: on-failure, delay: 2s}

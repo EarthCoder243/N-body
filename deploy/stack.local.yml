@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  worker-cpu:
+    environment:
+      THREADS: "6"
+    deploy:
+      mode: replicated
+      replicas: 3

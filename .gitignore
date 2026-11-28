@@ -30,3 +30,4 @@ build-mpi/compile_commands.json
 build-headless/nbody-mpi
 build-mpi/nbody-compare
 build-mpi/nbody-headless
+bench/results/f1-local-supervisor.log

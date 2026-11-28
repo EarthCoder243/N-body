@@ -48,7 +48,7 @@ bool initializeKernel(KernelResources& resources, int backend)
     }
     if(backend == BACKEND_CUDA)
     {
-        fprintf(stderr, "This build has no CUDA backend yet");
+        fprintf(stderr, "This build has no CUDA backend yet\n");
         return false;
     }
     fprintf(stderr, "Unknown backend %d\n", backend);

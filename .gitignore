@@ -20,3 +20,9 @@ Makefile
 build/
 
 perf.*
+*.bin
+*.a
+*.csv
+build-headless/nbody-compare
+build-headless/nbody-headless
+build-headless/compile_commands.json

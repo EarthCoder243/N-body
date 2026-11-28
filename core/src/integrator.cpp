@@ -7,7 +7,7 @@ Leapfrog integration, energy diagnostic
 
 void kick(SimState& state, int begin, int end, float h)
 {
-    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static) if(end - begin > 50000)
     for(int i = begin; i < end; i++)
     {
         state.vel[i].x += state.acc[i].x * h;
@@ -18,7 +18,7 @@ void kick(SimState& state, int begin, int end, float h)
 
 void drift(SimState& state, int begin, int end, float h)
 {
-    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static) if(end - begin > 50000)
     for(int i = begin; i < end; i++)
     {
         state.pos[i].x += state.vel[i].x * h;

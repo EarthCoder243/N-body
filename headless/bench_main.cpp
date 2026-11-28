@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -6,6 +7,29 @@
 #include <vector>
 #include "ParticleSystemGalaxyInitializer.h"
 #include "nbody/kernels.h"
+
+//total energy (kinetic + softened potential) and total momentum, for the correctness check
+void printEnergy(const nbody::State &state, const char *label)
+{
+    const std::size_t n = state.size();
+    const nbody::Params &p = state.params;
+    double kinetic = 0.0, potential = 0.0, px = 0.0, py = 0.0, pz = 0.0;
+    for (std::size_t i = 0; i < n; i++) {
+        const nbody::Vec4 &v = state.vel[i];
+        double m = state.pos[i].w;
+        kinetic += 0.5 * m * (v.x * v.x + v.y * v.y + v.z * v.z);
+        px += m * v.x; py += m * v.y; pz += m * v.z;
+        for (std::size_t j = i + 1; j < n; j++) {
+            double dx = state.pos[j].x - state.pos[i].x;
+            double dy = state.pos[j].y - state.pos[i].y;
+            double dz = state.pos[j].z - state.pos[i].z;
+            potential -= p.G * m * state.pos[j].w / std::sqrt(dx * dx + dy * dy + dz * dz + p.eps2);
+        }
+    }
+    std::cerr << label << ": energy " << kinetic + potential
+              << " (kinetic " << kinetic << ", potential " << potential << ")"
+              << ", momentum (" << px << ", " << py << ", " << pz << ")\n";
+}
 
 int main(int argc, char *argv[])
 {
@@ -61,6 +85,9 @@ int main(int argc, char *argv[])
     std::vector<nbody::Vec4> newAcc(numParticles);
     float half = params.dt * 0.5f;
 
+    //energy and momentum before the first step (printed to stderr so the CSV stays clean)
+    printEnergy(state, "step 0");
+
     // Time each step and print step,ms rows (redirect stdout to a CSV file)
     std::cout << "step,ms\n";
     for (int step = 0; step < steps; step++) {
@@ -86,6 +113,8 @@ int main(int argc, char *argv[])
         std::cout << step << "," << ms << "\n";
     }
 
+    //energy and momentum after the last step
+    printEnergy(state, ("step " + std::to_string(steps)).c_str());
     //dump final positions as (x, y, z, mass) floats per particle
     std::ofstream out(outPath, std::ios::binary);
     out.write(reinterpret_cast<const char *>(state.pos.data()), sizeof(nbody::Vec4) * numParticles);

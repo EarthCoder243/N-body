@@ -118,5 +118,7 @@ endif()
 
 if(NBODY_MPI)
   find_package(MPI REQUIRED COMPONENTS CXX)
-  # nbody-mpi (apps/nbody_mpi.cpp) is added in step 2
+  add_executable(nbody-mpi apps/nbody_mpi.cpp)
+  target_link_libraries(nbody-mpi PRIVATE nbody_core MPI::MPI_CXX)
+  nbody_compile_options(nbody-mpi)
 endif()

@@ -15,6 +15,7 @@ std::string checkpointPath(const std::string& dir, uint64_t step);
 
 bool writeCheckpoint(const std::string& dir, const SimState& state, int keep = 2);
 bool newestCheckpoint(const std::string& dir, uint64_t& step);
+bool hasCheckpoint(const std::string& dir, uint64_t step);
 void discardCheckpointsAfter(const std::string& dir, uint64_t step);
 
 #endif

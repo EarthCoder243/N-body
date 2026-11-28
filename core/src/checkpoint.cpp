@@ -257,3 +257,8 @@ void discardCheckpointsAfter(const std::string& dir, uint64_t step)
         }
     }
 }
+
+bool hasCheckpoint(const std::string& dir, uint64_t step)
+{
+    return isComplete(checkpointPath(dir, step));
+}

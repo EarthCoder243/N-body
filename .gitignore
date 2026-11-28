@@ -26,3 +26,7 @@ perf.*
 build-headless/nbody-compare
 build-headless/nbody-headless
 build-headless/compile_commands.json
+build-mpi/compile_commands.json
+build-headless/nbody-mpi
+build-mpi/nbody-compare
+build-mpi/nbody-headless
